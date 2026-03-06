@@ -1,144 +1,134 @@
-# 📈 NSE Stock Screener
+# 📈 NSE Stock Recommendation Engine (v4.0)
 
-A self-contained Python script that automatically identifies fundamentally strong, undervalued, and high-growth NSE stocks. It analyzes the data and provides a plain-English verdict on **why** each stock is a good candidate, along with sector-specific risk disclaimers.
+An open-source, professional-grade stock screener and recommendation engine for the Indian Stock Market (NSE). 
 
----
-
-## 🚀 Features
-
-- **Broad Coverage:** Screens the Nifty 50, 100, 500, Midcap 150, or Smallcap 250 universes.
-- **5-Gate Filtering:** Sequentially filters by Liquidity → Quality → Growth → Valuation → Financials.
-- **Smart Scoring:** Ranks surviving stocks using a weighted formula (Growth 30%, Quality 30%, Valuation 20%, Balance Sheet 20%).
-- **Sector Aware:** Applies different fundamental rules for Banks/NBFCs (using P/B instead of PEG/Debt).
-- **Human-Readable Verdicts:** Generates formatted, easy-to-read text boxes for your terminal.
-- **Zero Cost:** Uses 100% free data via `yfinance` and official NSE CSVs. No API keys required.
+Unlike basic screeners that rely on static thresholds (e.g., "PE < 20"), this tool uses **Tickertape-style multi-dimensional analysis**. It compares stocks against their specific sector peers, computes historical multi-year growth from financial statements, flags "Smart Money" institutional buying, and outputs a dynamic "Bull Case" explaining *why* a stock is highly ranked right now.
 
 ---
 
-## 💻 Complete Setup & Run Instructions
+## ✨ Key Features
 
-Follow these exact steps in your terminal to set up the environment and run the script safely without affecting your system-wide Python installation.
+*   **🧠 Multi-Axis Grading System:** Stocks are scored out of 30 across three distinct pillars: **Quality** (10), **Valuation** (10), and **Momentum/Confidence** (10). Visual terminal bars show you exactly where a stock excels.
+*   **⚡ Smart Two-Layer Caching:** Fundamental data (which changes quarterly) is cached for 7 days to speed up execution. However, **Price and Technical data is always fetched LIVE** on every run, ensuring your technical signals are never stale.
+*   **📊 Computed Multi-Year Growth (CAGR):** Instead of relying on buggy snapshot data, the engine downloads historical income statements to mathematically calculate 3-Year and 5-Year Revenue and Profit growth.
+*   **🏦 Dedicated Financial Sector Logic:** Banks and NBFCs are evaluated using entirely different math (focusing on P/B vs Sector and ROE vs Sector, ignoring Debt-to-Equity).
+*   **🧭 Sector-Relative Valuation:** A PE of 25 is cheap for FMCG but expensive for Steel. This engine calculates real-time sector medians and scores stocks based on how they compare to their direct peers.
+*   **💡 The "Bull Case" Generator:** The engine dynamically writes a plain-English explanation of why a stock is recommended (e.g., *"Trading at 20% discount to sector PE despite exceptional ROE of 24%..."*).
+*   **🎭 Pre-Built Archetypes:** Not a quantitative expert? Just change one word in the config to run pre-built strategies like `Growth_Bargain`, `Cash_Machine`, or `Quality_Compounder`.
 
-### Step 1: Prepare the Project Folder
-Open your terminal and run the following commands to create a folder and navigate into it:
+---
+
+## 🚀 Installation & Setup
+
+### 1. Prerequisites
+You will need Python 3.9+ installed on your system. 
+
+### 2. Install Required Libraries
+Open your terminal or command prompt and install the dependencies:
 ```bash
-mkdir nse_screener
-cd nse_screener
-```
-*(Now, save the provided `nse_screener.py` file into this exact folder).*
-
-### Step 2: Create a Local Virtual Environment
-Create an isolated Python environment inside the folder:
-
-**For Mac/Linux:**
-```bash
-python3 -m venv .venv
-```
-**For Windows:**
-```cmd
-python -m venv .venv
+pip install pandas numpy yfinance requests urllib3
 ```
 
-### Step 3: Activate the Virtual Environment
-You must activate the environment every time you open a new terminal to run the script.
-
-**For Mac/Linux:**
-```bash
-source .venv/bin/activate
-```
-**For Windows (Command Prompt):**
-```cmd
-.venv\Scripts\activate.bat
-```
-*(You will know it worked if you see `(.venv)` at the beginning of your terminal prompt).*
-
-### Step 4: Install Required Libraries
-With the environment active, install the necessary packages:
-```bash
-pip install pandas numpy yfinance requests
-```
-
-### Step 5: Run the Script
-Ensure your terminal is in the `nse_screener` folder and the `(.venv)` is active, then run:
+### 3. Download and Run
+Clone this repository or download the `nse_screener.py` file, then run it:
 ```bash
 python nse_screener.py
 ```
 
-> ⏱️ **Note on Speed:** Fetching 500 stocks one by one with a polite delay (to avoid IP bans) will take about **20 to 35 minutes**. Let it run in the background.
+*Note: The first run will take 10–15 minutes as it downloads 5 years of financial history for 500 stocks. Subsequent runs on the same day will take **under 15 seconds** thanks to the smart caching engine!*
 
 ---
 
-## ⚙️ Configuration (How to Tweak It)
+## 🛠️ How to Use & Customize (The `CONFIG` Block)
 
-All settings live in the `CONFIG` dictionary at the very top of `nse_screener.py`. Open the file in any text editor to change them.
+Open `nse_screener.py` in any text editor. At the very top, you will find the `CONFIG` block. You can change these settings to fit your investing style.
 
 ### Changing the Universe
-By default, it scans the `Nifty500`. To change this, edit line 1 of the `CONFIG`:
+By default, the script scans the top 500 companies in India. You can change this to scan midcaps or smallcaps:
 ```python
-"universe": "Midcap150"  # Options: Nifty50, Nifty100, Nifty500, Midcap150, Smallcap250
+"universe": "Nifty500",  # Options: Nifty50, Nifty100, Midcap150, Smallcap250, Top800_Custom
 ```
 
-### Adjusting Strictness
-If **0 stocks** survive the filters (meaning the market is currently expensive or your rules are too strict), relax the thresholds:
-- Change `"min_roe_pct": 15` to `12`
-- Change `"max_peg_ratio": 1.5` to `2.0`
-- Change `"min_profit_cagr_3yr_pct": 15` to `10`
+### Using Pre-Built Archetypes (Easiest Method)
+If you don't want to tweak 20 different financial filters manually, just change the `archetype`:
+```python
+"archetype": "Growth_Bargain", 
+```
+**Available Archetypes:**
+*   `Custom` (Uses your manual filter settings)
+*   `Growth_Bargain` (High earnings growth, PE below sector average)
+*   `Cash_Machine` (Zero debt, massive operating cash flow, high ROE)
+*   `Low_Debt_Midcap` (Scans Midcap150 for clean balance sheets)
+*   `Quality_Compounder` (Consistent high ROE/ROCE, 15%+ multi-year growth)
+*   `Near_52W_Low` (Beaten-down stocks that still have good fundamentals)
 
 ---
 
-## 📁 Output Files
+## 🖥️ Understanding the Output
 
-When the script finishes, it generates two files in the same folder:
+The script outputs a beautifully formatted terminal interface and saves a `Top_Stocks_Report.csv` to your folder. 
 
-1. **`raw_data.csv`** — The raw dump of all metrics for every stock fetched (useful for your own custom spreadsheet analysis).
-2. **`Top_Stocks_Report.csv`** — The final, ranked list of surviving stocks with their 0-100 composite scores.
-
-The script will also print a highly readable report directly in your terminal.
-
----
-
-## 🖥️ Sample Terminal Output
+Here is an example of what a final recommendation looks like in the terminal:
 
 ```text
-==================================================================
-  🏢  TATACONSUM.NS        |  Sector: Consumer Goods
-  💯  Composite Score : 84.32 / 100
-  💰  Current Price   : ₹920.50
-  📊  52W High/Low    : ₹1050.00 / ₹760.00
-  📉  Below 52W High  : 12.3%
-------------------------------------------------------------------
-  KEY FUNDAMENTALS
-    P/E  : 38.2       P/B  : 6.1        PEG  : 1.1
-    ROE  : 22.1%      D/E  : 0.3        Rev Growth: 18.4%
-    Earnings Growth : 22.6%    Op. Cash Flow: ₹1,240 Cr
-------------------------------------------------------------------
-  ✅  VERDICT
-    TATACONSUM.NS is a strong candidate with robust earnings growth
-    of 22.6%, healthy ROE of 22.1%, and an attractive valuation (PEG: 1.1).
-    This stock has good potential to compound wealth over the
-    medium to long term based on current fundamentals.
-------------------------------------------------------------------
-  ⚠️   DISCLAIMER
-    This outlook is valid under normal market conditions.
-    Risks for Consumer Goods sector: Input cost inflation, rural demand
-    slowdown, or GST rate changes.
-    THIS IS NOT FINANCIAL ADVICE. Do your own due diligence.
-==================================================================
+======================================================================
+  #1  TCS.NS                    Information Technology
+  🟢 STRONG  |  Final Score: 26.5/30
+  Quality: 9.0/10 [█████████░]
+  Valuation: 8.5/10 [████████░░]
+  Momentum: 9.0/10 [█████████░]
+----------------------------------------------------------------------
+  PRICE & TECHNICALS
+    CMP     : ₹4120.5      Mkt Cap : ₹14,50,000 Cr
+    52W     : ₹3800.0 — ₹4250.0   Below High: 3.0%
+    Trend   : Uptrend ✅          Vol Surge: ✅ Yes
+    SMA50   : ₹4010.5      SMA200  : ₹3950.0
+----------------------------------------------------------------------
+  VALUATION (Stock vs Sector)
+    P/E     : 28.5         Sector P/E : 32.1
+    P/B     : 12.1         Sector P/B : 10.5
+    PEG     : 1.1          EPS Yield  : 3.5%  ❌ Below Bond (7.1%)
+    FCF Yield: 4.2%
+----------------------------------------------------------------------
+  FUNDAMENTALS
+    ROE     : 42.5%        Sector ROE : 22.0%
+    D/E     : 0.0          Curr Ratio : 2.5
+    Rev CAGR: 3Y=15.2%     5Y=14.8%
+    PAT CAGR: 3Y=18.5%     5Y=16.2%
+    Op. CF  : ₹45,000 Cr   FCF    : ₹42,000 Cr
+    Inst. Hold: 28.5%      Data: 5 years
+----------------------------------------------------------------------
+  💡 THE BULL CASE
+    Trading near 52-week highs with 18.5% 3Y net income CAGR — 
+    indicates strong business momentum and market confidence.
+----------------------------------------------------------------------
+  ⚠️  DISCLAIMER
+    Sector risk (Information Technology):
+    Global IT spending cuts, USD/INR volatility, client concentration.
+    THIS IS NOT FINANCIAL ADVICE. Always do your own due diligence.
+======================================================================
 ```
 
 ---
 
-## 🐛 Troubleshooting
+## ⚙️ How the Engine Works (The Pipeline)
 
-| Error Message | Solution |
-| :--- | :--- |
-| `ModuleNotFoundError` | You forgot to activate the virtual environment (`source .venv/bin/activate`) before running. |
-| `ConnectionError` on NSE URL | NSE occasionally blocks scraper traffic. The script will auto-fallback to a local `Nifty500.csv` if you download it manually from the NSE website to your folder. |
-| `No stocks passed all filters` | The market is trading at a premium. Relax the `CONFIG` valuation metrics (like PE or PEG). |
+For developers and quants, here is the architecture of the script:
+
+1.  **Universe Load:** Fetches the live index constituents directly from the NSE website.
+2.  **Cache Engine:** Checks `cache/tickers/` for fundamental data younger than 7 days.
+3.  **Live Price Fetch:** Batches a request to Yahoo Finance for live OHLCV data.
+4.  **Math Engine:** Computes 3Y/5Y CAGRs and calculates Sector Medians.
+5.  **Filter Engine (Hard Rejects):** 6 sequential gates drop companies with negative cash flow, shrinking margins, excessive debt, or poor liquidity.
+6.  **Scoring Engine:** Surviving stocks are graded on Quality, Valuation, and Momentum.
+7.  **Explainability:** Generates a dynamic "Bull Case" based on specific triggered logic conditions.
 
 ---
 
-## ⚠️ Disclaimer
+## 🤝 Contributing
+Contributions are welcome! If you want to add new indicators (e.g., RSI, MACD), improve the financial extraction logic for Indian stocks, or add new Archetypes, please fork the repository and submit a Pull Request.
 
-This tool is built for **research, automation, and educational purposes only**. It does not constitute financial advice. The Indian stock market is subject to volatility. Always perform your own due diligence, analyze the technical charts, and consider consulting a SEBI-registered financial advisor before executing trades.
-```
+---
+
+## ⚖️ Disclaimer
+**This software is for educational and research purposes only.** The outputs generated by this script do not constitute financial advice, investment recommendations, or an offer to buy or sell any securities. Stock market investments are subject to market risks. Always consult a registered financial advisor and conduct your own due diligence before making any investment decisions. The creators of this open-source tool assume no liability for any financial losses.
