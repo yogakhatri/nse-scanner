@@ -80,11 +80,21 @@ if not _BS4_AVAILABLE:
 # =============================================================================
 # SECTION 1: CONFIG (mostly unchanged, small new keys)
 # =============================================================================
+
 CONFIG = {
+
+    # ================================
+    # Universe
+    # ================================
     "universe": "Top800_Custom",
     "archetype": "Custom",
+
+    # ================================
+    # Engine Settings
+    # ================================
     "use_mmi_auto_adjust": True,
     "use_cache": True,
+
     "cache_folder": "cache/",
     "cache_tickers_subfolder": "cache/tickers/",
     "cache_fundamental_days": 7,
@@ -92,43 +102,85 @@ CONFIG = {
     "cache_force_refresh": False,
     "cache_show_stats": True,
     "cache_schema_version": "6.0",
-    # Liquidity
-    "min_market_cap_cr": 200,
-    "min_avg_daily_volume": 50000,
-    # Red flags
+
+    # ================================
+    # Liquidity Filters
+    # ================================
+    # Remove illiquid junk stocks
+    "min_market_cap_cr": 300,
+    "min_avg_daily_volume": 200000,
+
+    # ================================
+    # Red Flag Filters
+    # ================================
     "reject_negative_ocf": True,
-    "reject_current_ratio_below": 1.0,
-    "reject_shrinking_margins": False,
-    # Quality
-    "max_debt_to_equity": 1.5,
-    "min_roe_pct": 12,
-    # Growth
-    "min_revenue_cagr_3y_pct": 8,
-    "min_netincome_cagr_3y_pct": 12,
-    # Valuation
-    "max_pe_vs_sector_mult": 1.5,
-    "min_roe_vs_sector_mult": 0.85,
-    "max_peg_ratio": 2.0,
-    # Financials
-    "max_pb_financials": 2.5,
-    "financial_sectors": ["Bank", "NBFC", "Insurance", "Financial Services", "Finance"],
-    # Fetching
+    "reject_current_ratio_below": 1.2,
+    "reject_shrinking_margins": True,
+
+    # ================================
+    # Quality Filters
+    # ================================
+    # Focus on efficient companies
+    "max_debt_to_equity": 0.8,
+    "min_roe_pct": 15,
+
+    # ================================
+    # Growth Filters
+    # ================================
+    "min_revenue_cagr_3y_pct": 12,
+    "min_netincome_cagr_3y_pct": 15,
+
+    # ================================
+    # Valuation Filters
+    # ================================
+    # Ensure not overpriced
+    "max_pe_vs_sector_mult": 1.2,
+    "min_roe_vs_sector_mult": 0.9,
+    "max_peg_ratio": 1.5,
+
+    # ================================
+    # Financial Sector Rules
+    # ================================
+    "max_pb_financials": 2.0,
+    "financial_sectors": [
+        "Bank",
+        "NBFC",
+        "Insurance",
+        "Financial Services",
+        "Finance"
+    ],
+
+    # ================================
+    # Data Fetching
+    # ================================
     "fetch_max_workers": 10,
     "price_batch_size": 100,
-    # Technical
+
+    # ================================
+    # Technical Settings
+    # ================================
     "sma_short": 50,
     "sma_long": 200,
     "rsi_period": 14,
-    # Bond yield — used for 'beats bond yield' calculation
+
+    # ================================
+    # Macro Inputs
+    # ================================
     "india_10y_bond_yield_pct": 6.7,
+
+    # ================================
+    # Output
+    # ================================
     "top_n_results": 25,
     "output_csv": "Top_Stocks_Report.csv",
-    # New options
+
+    # ================================
+    # MMI System
+    # ================================
     "mmi_history_path": "cache/mmi_history.csv",
     "price_matrix_parquet": "cache/price_close_matrix.parquet",
-    # MMI sensitivity threshold for filtering (abs corr)
+
     "mmi_sensitivity_threshold": 0.25,
-    # How many days to compute rolling correlation on (for MMI sensitivity)
     "mmi_corr_window_days": 90,
 }
 
